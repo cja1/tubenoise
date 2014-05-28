@@ -14,11 +14,7 @@
 #import "APLGraphView.h"
 #import "APPlotUtils.h"
 
-/*
- resolution / size of image?
- */
-
-#define kAccelerometerAverageInterval       1000    //10 sec bias calculation / averaging for z axis acceleration
+#define kAccelerometerAverageInterval       1000    //10 sec bias calculation / averaging for z axis acceleration - for realtime display only
 #define kFramesPerSec                       10
 #define kChartInset                         25.0f
 
@@ -36,6 +32,7 @@
 @property (strong, nonatomic) NSURL *videoUrl;
 @property (strong, nonatomic) NSURL *audioUrl;
 @property (strong, nonatomic) NSURL *movieUrl;
+@property (strong, nonatomic) NSURL *csvUrl;
 
 @property(strong, nonatomic) AVAudioRecorder *recorder;
 @property(strong, nonatomic) NSDate *startDate;
@@ -185,38 +182,31 @@
         [_buttonStartStop setTitle: @"Stop" forState:UIControlStateNormal];
         _buttonStartStop.enabled = NO;
 
-        _labelFooter.text = @"Starting in 3 secs";
+        _labelFooter.text = @"Starting in 1 sec";
         _labelFooter.hidden = NO;
 
-        //Start synchronised in 3 secs
+        //Start synchronised in 1 sec
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            _labelFooter.text = @"Starting in 2 secs";
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                _labelFooter.text = @"Starting in 1 sec";
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                    
-                    //Clear all data points
-                    [_accelerometerData removeAllObjects];
-                    [_soundData removeAllObjects];
-                    [_timeData removeAllObjects];
-                    
-                    //Start sound recording
-                    [_recorder record];
-                    
-                    _startDate = [NSDate date];
-                    NSDateFormatter *dateFormatter = [NSDateFormatter new];
-                    dateFormatter.dateFormat = @"HH:mm:ss";
-                    
-                    _labelStartTime.text = [NSString stringWithFormat:@"Start time: %@", [dateFormatter stringFromDate:_startDate]];
-                    _labelElapsedTime.text = [NSString stringWithFormat:@"Elapsed time: 0s"];
-                    _labelStartTime.hidden = NO;
-                    _labelElapsedTime.hidden = NO;
-                    
-                    _isRecording = YES;
-                    _labelFooter.hidden = YES;
-                    _buttonStartStop.enabled = YES;
-                });
-            });
+            //Clear all data points
+            [_accelerometerData removeAllObjects];
+            [_soundData removeAllObjects];
+            [_timeData removeAllObjects];
+            
+            //Start sound recording
+            [_recorder record];
+            
+            _startDate = [NSDate date];
+            NSDateFormatter *dateFormatter = [NSDateFormatter new];
+            dateFormatter.dateFormat = @"HH:mm:ss";
+            
+            _labelStartTime.text = [NSString stringWithFormat:@"Start time: %@", [dateFormatter stringFromDate:_startDate]];
+            _labelElapsedTime.text = [NSString stringWithFormat:@"Elapsed time: 0s"];
+            _labelStartTime.hidden = NO;
+            _labelElapsedTime.hidden = NO;
+            
+            _isRecording = YES;
+            _labelFooter.hidden = YES;
+            _buttonStartStop.enabled = YES;
         });
     }
     else {
@@ -365,29 +355,20 @@
 }
 
 - (void)createAccelerometerChart {
-    //Calc accelerometer bias
-    double bias = 0.0;
-    for (NSNumber *datapoint in _accelerometerData) {
-        bias += [datapoint doubleValue];
-    }
-    bias = bias / [_accelerometerData count];
     
     NSMutableArray *segmentData = [NSMutableArray new];
     NSMutableArray *segmentTimeData = [NSMutableArray new];
     
-    //Subtract bias from vals, make mm/s2 not m/s2
-    double currentValue;
-    double currentSecs;
+    double currentValue, accelInMMPerSec, currentSecs;
+    
     for (int i = 0; i < [_accelerometerData count]; i++) {
         currentValue = [[_accelerometerData objectAtIndex:i] doubleValue];
-        currentValue -= bias;
-        currentValue *= 1000.0f;    //mm/s2
-        [_accelerometerData setObject:[NSNumber numberWithDouble:currentValue] atIndexedSubscript:i];
+        accelInMMPerSec = currentValue * 1000.0f;    //mm/s2
         
         //if within time, add to data and timeData arrays
         currentSecs = [[_timeData objectAtIndex:i] doubleValue];
         if ((currentSecs >= _sliderStartTime.value) && (currentSecs <= _sliderEndTime.value)) {
-            [segmentData addObject:[NSNumber numberWithDouble:currentValue]];
+            [segmentData addObject:[NSNumber numberWithDouble:accelInMMPerSec]];
             [segmentTimeData addObject:[NSNumber numberWithDouble:currentSecs - _sliderStartTime.value]];    //re-bases time data to start time as 0
         }
     }
@@ -403,18 +384,15 @@
 }
 
 - (void)createSoundChart {
-    //Calc linear sound amplitude
-    double currentValue, amplitude;
 
     NSMutableArray *segmentData = [NSMutableArray new];
     NSMutableArray *segmentTimeData = [NSMutableArray new];
 
-    double currentSecs;
+    double currentValue, amplitude, currentSecs;
 
     for (int i = 0; i < [_soundData count]; i++) {
         currentValue = [[_soundData objectAtIndex:i] doubleValue];  //dBFS ie db relative to Full Scale. Range: -160dB to 0dB
         amplitude =  powf(10.0f, currentValue / 20.0f);             //linear amplitude from dB Full Scale
-        [_soundData setObject:[NSNumber numberWithDouble:amplitude] atIndexedSubscript:i];
         
         //if within time, add to data and timeData arrays
         currentSecs = [[_timeData objectAtIndex:i] doubleValue];
@@ -507,6 +485,11 @@
     _sliderEndTime.hidden = YES;
     [self buildOutputView];
     
+    //Create csv
+    _labelProgress.text = @"Creating csv file";
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
+    [self createCSV];
+    
     //Create video images
     _labelProgress.text = @"Creating video frames";
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
@@ -532,13 +515,14 @@
     [mc setMessageBody:messageBody isHTML:NO];
     //[mc setToRecipients:toRecipents];
     
-    // Get the resource path and read the file using NSData
-    NSData *fileData = [NSData dataWithContentsOfURL:_movieUrl];
-    
-    // Add attachment
+    //add attachments
     dateFormatter.dateFormat = @"yyyy-MM-dd HH.mm.ss";
+    NSData *fileData = [NSData dataWithContentsOfURL:_movieUrl];
     [mc addAttachmentData:fileData mimeType:@"video/mp4" fileName:[NSString stringWithFormat:@"recording%@.mp4", [dateFormatter stringFromDate:[self segmentStartDate]]]];
-    
+
+    fileData = [NSData dataWithContentsOfURL:_csvUrl];
+    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"rawdata%@.csv", [dateFormatter stringFromDate:[self segmentStartDate]]]];
+
     // Present mail view controller on screen
     _isShowingEmail = YES;
     [self presentViewController:mc animated:YES completion:NULL];
@@ -590,6 +574,32 @@
     }];
 }
 
+- (void)createCSV {
+    NSDateFormatter *dateFormatter = [NSDateFormatter new];
+    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    double duration = [self segmentDuration];
+    NSMutableString *csv = [NSMutableString new];
+    
+    [csv appendString:[NSString stringWithFormat:@"Sound & Vibration Recording - Raw Data\nRecorded at %@ duration %.1f seconds\n\n", [dateFormatter stringFromDate:[self segmentStartDate]], duration]];
+    [csv appendString:@"Date,Seconds,Acceleration (m/s/s),Sound (dBFS)"];
+    
+    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSSS";
+    NSDate *readingDate;
+    NSTimeInterval readingSecs;
+    for (int i = 0; i < [_timeData count]; i++) {
+        readingSecs = [[_timeData objectAtIndex:i] doubleValue];
+        readingDate = [_startDate dateByAddingTimeInterval:readingSecs];  //create full NSDate for this reading
+        [csv appendFormat:@"\n\"%@\",%f,%f,%f",
+            [dateFormatter stringFromDate:readingDate],
+            readingSecs,
+            [[_accelerometerData objectAtIndex:i] doubleValue],
+            [[_soundData objectAtIndex:i] doubleValue]
+         ];
+    }
+    NSError *error;
+    [csv writeToURL:_csvUrl atomically:YES encoding:NSUTF8StringEncoding error:&error];
+}
+
 - (void)setupFiles {
     NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tempvideo.mp4"];
     if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -604,11 +614,16 @@
     _audioUrl = [NSURL fileURLWithPath:path];
 
     path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"recording.mp4"];
-    
     if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
         [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
     }
     _movieUrl = [NSURL fileURLWithPath:path];
+
+    path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"rawdata.csv"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+    }
+    _csvUrl = [NSURL fileURLWithPath:path];
 }
 
 

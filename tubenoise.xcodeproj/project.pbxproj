@@ -136,8 +136,6 @@
 		F1B2E7EE192F6E8100C8B5D6 /* tubenoise */ = {
 			isa = PBXGroup;
 			children = (
-				F1B2E820192F71F800C8B5D6 /* APLGraphView.h */,
-				F1B2E821192F71F800C8B5D6 /* APLGraphView.m */,
 				F1B2E7F7192F6E8100C8B5D6 /* APAppDelegate.h */,
 				F1B2E7F8192F6E8100C8B5D6 /* APAppDelegate.m */,
 				F1B2E81B192F70BE00C8B5D6 /* APHomeViewController.h */,
@@ -149,6 +147,8 @@
 				F1BEEF5A1934C3BD00A0B080 /* APPlotUtils.m */,
 				F1B2E826192FA5AA00C8B5D6 /* APEncodeMovie.h */,
 				F1B2E827192FA5AA00C8B5D6 /* APEncodeMovie.m */,
+				F1B2E820192F71F800C8B5D6 /* APLGraphView.h */,
+				F1B2E821192F71F800C8B5D6 /* APLGraphView.m */,
 				F1B2E7FA192F6E8100C8B5D6 /* Images.xcassets */,
 				F1B2E7EF192F6E8100C8B5D6 /* Supporting Files */,
 			);
