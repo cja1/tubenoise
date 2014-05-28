@@ -3,7 +3,7 @@ tubenoise
 
 tubenoise - Sound &amp; Vibration Recorder
 
-This code creates a basic sound and vibration recorder for iPhones.
+This code creates a basic sound and vibration recorder for iPhones. It was created to monitor the sound / vibration levels from London Underground trains.
 
 Sounds are measured using the iPhone microphone and both the sound amplitude and the actual sound are recorded.
 
