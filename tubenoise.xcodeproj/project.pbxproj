@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F108553A1937811D00E7C82E /* APPDFRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = F10855391937811D00E7C82E /* APPDFRenderer.m */; };
+		F108553C193784D600E7C82E /* PDFTemplate.xib in Resources */ = {isa = PBXBuildFile; fileRef = F108553B193784D600E7C82E /* PDFTemplate.xib */; };
+		F144D42C193707E400F6D2FA /* APDataProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = F144D42B193707E400F6D2FA /* APDataProcessor.m */; };
+		F15A58F11937331300566F23 /* APMovieProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = F15A58F01937331300566F23 /* APMovieProcessor.m */; };
+		F17D3892193869D40046DAAB /* APCSVUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F17D3891193869D40046DAAB /* APCSVUtils.m */; };
 		F1B2E7E9192F6E8100C8B5D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7E8192F6E8100C8B5D6 /* Foundation.framework */; };
 		F1B2E7EB192F6E8100C8B5D6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7EA192F6E8100C8B5D6 /* CoreGraphics.framework */; };
 		F1B2E7ED192F6E8100C8B5D6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7EC192F6E8100C8B5D6 /* UIKit.framework */; };
@@ -41,6 +46,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F10855381937811D00E7C82E /* APPDFRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APPDFRenderer.h; sourceTree = "<group>"; };
+		F10855391937811D00E7C82E /* APPDFRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APPDFRenderer.m; sourceTree = "<group>"; };
+		F108553B193784D600E7C82E /* PDFTemplate.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PDFTemplate.xib; sourceTree = "<group>"; };
+		F144D42A193707E400F6D2FA /* APDataProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APDataProcessor.h; sourceTree = "<group>"; };
+		F144D42B193707E400F6D2FA /* APDataProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APDataProcessor.m; sourceTree = "<group>"; };
+		F15A58EF1937331300566F23 /* APMovieProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APMovieProcessor.h; sourceTree = "<group>"; };
+		F15A58F01937331300566F23 /* APMovieProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APMovieProcessor.m; sourceTree = "<group>"; };
+		F17D3890193869D40046DAAB /* APCSVUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APCSVUtils.h; sourceTree = "<group>"; };
+		F17D3891193869D40046DAAB /* APCSVUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APCSVUtils.m; sourceTree = "<group>"; };
 		F1B2E7E5192F6E8100C8B5D6 /* tubenoise.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tubenoise.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1B2E7E8192F6E8100C8B5D6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F1B2E7EA192F6E8100C8B5D6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -141,12 +155,21 @@
 				F1B2E81B192F70BE00C8B5D6 /* APHomeViewController.h */,
 				F1B2E81C192F70BE00C8B5D6 /* APHomeViewController.m */,
 				F1B2E81D192F70BE00C8B5D6 /* APHomeViewController.xib */,
+				F144D42A193707E400F6D2FA /* APDataProcessor.h */,
+				F144D42B193707E400F6D2FA /* APDataProcessor.m */,
+				F15A58EF1937331300566F23 /* APMovieProcessor.h */,
+				F15A58F01937331300566F23 /* APMovieProcessor.m */,
 				F1B2E823192F999F00C8B5D6 /* APPlotView.h */,
 				F1B2E824192F999F00C8B5D6 /* APPlotView.m */,
 				F1BEEF591934C3BD00A0B080 /* APPlotUtils.h */,
 				F1BEEF5A1934C3BD00A0B080 /* APPlotUtils.m */,
 				F1B2E826192FA5AA00C8B5D6 /* APEncodeMovie.h */,
 				F1B2E827192FA5AA00C8B5D6 /* APEncodeMovie.m */,
+				F10855381937811D00E7C82E /* APPDFRenderer.h */,
+				F10855391937811D00E7C82E /* APPDFRenderer.m */,
+				F108553B193784D600E7C82E /* PDFTemplate.xib */,
+				F17D3890193869D40046DAAB /* APCSVUtils.h */,
+				F17D3891193869D40046DAAB /* APCSVUtils.m */,
 				F1B2E820192F71F800C8B5D6 /* APLGraphView.h */,
 				F1B2E821192F71F800C8B5D6 /* APLGraphView.m */,
 				F1B2E7FA192F6E8100C8B5D6 /* Images.xcassets */,
@@ -263,6 +286,7 @@
 				F1B2E81F192F70BE00C8B5D6 /* APHomeViewController.xib in Resources */,
 				F1B2E7F3192F6E8100C8B5D6 /* InfoPlist.strings in Resources */,
 				F1B2E7FB192F6E8100C8B5D6 /* Images.xcassets in Resources */,
+				F108553C193784D600E7C82E /* PDFTemplate.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,10 +308,14 @@
 				F1BEEF5B1934C3BD00A0B080 /* APPlotUtils.m in Sources */,
 				F1B2E7F5192F6E8100C8B5D6 /* main.m in Sources */,
 				F1B2E828192FA5AA00C8B5D6 /* APEncodeMovie.m in Sources */,
+				F15A58F11937331300566F23 /* APMovieProcessor.m in Sources */,
 				F1B2E81E192F70BE00C8B5D6 /* APHomeViewController.m in Sources */,
 				F1B2E7F9192F6E8100C8B5D6 /* APAppDelegate.m in Sources */,
+				F108553A1937811D00E7C82E /* APPDFRenderer.m in Sources */,
 				F1B2E825192F999F00C8B5D6 /* APPlotView.m in Sources */,
+				F17D3892193869D40046DAAB /* APCSVUtils.m in Sources */,
 				F1B2E822192F71F800C8B5D6 /* APLGraphView.m in Sources */,
+				F144D42C193707E400F6D2FA /* APDataProcessor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

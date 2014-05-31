@@ -13,6 +13,10 @@
 #import "APEncodeMovie.h"
 #import "APLGraphView.h"
 #import "APPlotUtils.h"
+#import "APDataProcessor.h"
+#import "APMovieProcessor.h"
+#import "APPDFRenderer.h"
+#import "APCSVUtils.h"
 
 #define kAccelerometerAverageInterval       1000    //10 sec bias calculation / averaging for z axis acceleration - for realtime display only
 #define kFramesPerSec                       10
@@ -26,13 +30,16 @@
 @property (strong, nonatomic) NSMutableArray *accelerometerData;
 @property (strong, nonatomic) NSMutableArray *soundData;
 @property (strong, nonatomic) NSMutableArray *timeData;
+@property (strong, nonatomic) NSMutableDictionary *processedData;
 
 @property (nonatomic, assign) BOOL isRecording;
 
 @property (strong, nonatomic) NSURL *videoUrl;
 @property (strong, nonatomic) NSURL *audioUrl;
 @property (strong, nonatomic) NSURL *movieUrl;
-@property (strong, nonatomic) NSURL *csvUrl;
+@property (strong, nonatomic) NSURL *csvRebasedUrl;
+@property (strong, nonatomic) NSURL *csvProcessedUrl;
+@property (strong, nonatomic) NSURL *pdfUrl;
 
 @property(strong, nonatomic) AVAudioRecorder *recorder;
 @property(strong, nonatomic) NSDate *startDate;
@@ -53,6 +60,7 @@
 
 @property (strong, nonatomic) UISlider *sliderStartTime;
 @property (strong, nonatomic) UISlider *sliderEndTime;
+@property (strong, nonatomic) UILabel *labelStartEndTime;
 
 @end
 
@@ -80,7 +88,15 @@
     _soundData = [NSMutableArray new];
     _timeData = [NSMutableArray new];
     
-    [self setupFiles];
+    //setup all files urls
+    _videoUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"tempvideo.mp4"]];
+    _audioUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"tempaudio.m4a"]];
+    _movieUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"recording.mp4"]];
+    _csvRebasedUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"rebaseddata.csv"]];
+    _csvProcessedUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"processeddata.csv"]];
+    _pdfUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"temppdf.pdf"]];
+
+    [self deleteAudioFileIfExists];
     
     // Setup audio session
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord error:nil];
@@ -145,7 +161,7 @@
         if (_isRecording) {
             [_accelerometerData addObject:[NSNumber numberWithDouble:motion.userAcceleration.z]];
             [_soundData addObject:[NSNumber numberWithDouble:powerForChannel]];
-            [_timeData addObject:[NSNumber numberWithDouble:-1.0f * [_startDate timeIntervalSinceNow]]];
+            [_timeData addObject:[NSDate date]];
             _labelElapsedTime.text = [NSString stringWithFormat:@"Elapsed time: %.1fs", -1.0f * [_startDate timeIntervalSinceNow]];
         }
     }];
@@ -221,7 +237,7 @@
         //Create views with charts and show
         [[UIApplication sharedApplication] setStatusBarHidden:YES];
         [self setupStartEndSliders];    //sets sliders to 0 / duration
-        [self buildOutputView];         //build charts based on 0 start and duration end
+        [self buildOutputView:NO];         //build charts based on 0 start and duration end
         
         _progressView.hidden = NO;
         _labelProgress.hidden = NO;
@@ -248,7 +264,8 @@
     _outputView.hidden = YES;
     _sliderStartTime.hidden = YES;
     _sliderEndTime.hidden = YES;
-
+    _labelStartEndTime.hidden  =YES;
+    
     _outputImageView.hidden = YES;
 
     _labelFooter.hidden = YES;
@@ -256,7 +273,7 @@
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     [_recorder record];
 
-    [self setupFiles];
+    [self deleteAudioFileIfExists];
 }
 
 - (void)createOutputView {
@@ -287,7 +304,7 @@
     _plotSound.backgroundColor = [UIColor whiteColor];
     
     //Add sliders for start / end cropping of video
-    UIImage *greenLine = [APPlotUtils imageFromColor:[UIColor greenColor] withRect:CGRectMake(0.0, 0.0, 2.0, 2 * (plotHeight - kChartInset) + plotGap)];
+    UIImage *greenLine = [APPlotUtils imageFromColor:[UIColor greenColor] withRect:CGRectMake(0.0, 0.0, 4.0, 2 * (plotHeight - kChartInset) + plotGap)];
     _sliderStartTime = [[UISlider alloc] initWithFrame:CGRectMake(kChartInset, titleHeight + kChartInset, width / 2 - kChartInset, 2 * (plotHeight - kChartInset) + plotGap)];
     _sliderStartTime.minimumTrackTintColor = [UIColor clearColor];
     _sliderStartTime.maximumTrackTintColor = [UIColor clearColor];
@@ -299,6 +316,9 @@
     _sliderEndTime.maximumTrackTintColor = [UIColor clearColor];
     [_sliderEndTime setThumbImage:greenLine forState:UIControlStateNormal];
     [_outputView addSubview:_sliderEndTime];
+    
+    //add explanation text
+    _labelStartEndTime = [APPlotUtils addLabelToView:_outputView withFrame:CGRectMake(0.0f, titleHeight + plotHeight, width, plotGap) withText:@"Move green bars to set output start and end times" withSize:10.0f withAlignment:NSTextAlignmentCenter withColor:[UIColor greenColor]];
     
     //Add to main view and hide
     [self.view addSubview:_outputView];
@@ -320,9 +340,12 @@
 }
 
 - (void)setupStartEndSliders {
-    double duration = [[_timeData lastObject] doubleValue];
+    NSDate *startDate = [_timeData firstObject];
+    NSDate *endDate = [_timeData lastObject];
+    double duration = [endDate timeIntervalSinceDate:startDate];
     _sliderStartTime.hidden = NO;
     _sliderEndTime.hidden = NO;
+    _labelStartEndTime.hidden = NO;
     
     _sliderStartTime.minimumValue = 0.0f;
     _sliderStartTime.maximumValue = duration / 2.0f;
@@ -334,80 +357,55 @@
 
 - (NSDate *)segmentStartDate {
     //adjusts the start date for the slider start
-    NSDate *segmentStartDate = [_startDate dateByAddingTimeInterval:_sliderStartTime.value];
-    return segmentStartDate;
+    return [_startDate dateByAddingTimeInterval:_sliderStartTime.value];
 }
 
 - (double)segmentDuration {
     return _sliderEndTime.value - _sliderStartTime.value;
 }
 
-- (void)buildOutputView {
+- (void)buildOutputView:(BOOL)isFinalView {
 
     NSDateFormatter *dateFormatter = [NSDateFormatter new];
     dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     _outputSubtitle.text = [NSString stringWithFormat:@"Recorded at %@", [dateFormatter stringFromDate:[self segmentStartDate]]];
 
-    [self createAccelerometerChart];
-    [self createSoundChart];
+    //process the data based on the current slider settings
+    _processedData = [NSMutableDictionary dictionaryWithObjectsAndKeys:_accelerometerData, @"accelerometerVals", _timeData, @"accelerometerTime", _soundData, @"soundVals", _timeData, @"soundTime", nil];
+    [[APDataProcessor alloc] processData:_processedData startTime:_sliderStartTime.value endTime:_sliderEndTime.value];
+    
+    //always create the charts
+    [self createAccelerometerChart:[_processedData objectForKey:@"processedAccelerometerVals"] time:[_processedData objectForKey:@"processedAccelerometerTime"]];
+    [self createSoundChart:[_processedData objectForKey:@"processedSoundVals"] time:[_processedData objectForKey:@"processedSoundTime"]];
+    
+    //if final view, also create pdf
+    if (isFinalView) {
+        [[APPDFRenderer alloc] createPDF:_processedData url:_pdfUrl];
+    }
     
     _outputView.hidden = NO;
 }
 
-- (void)createAccelerometerChart {
-    
-    NSMutableArray *segmentData = [NSMutableArray new];
-    NSMutableArray *segmentTimeData = [NSMutableArray new];
-    
-    double currentValue, accelInMMPerSec, currentSecs;
-    
-    for (int i = 0; i < [_accelerometerData count]; i++) {
-        currentValue = [[_accelerometerData objectAtIndex:i] doubleValue];
-        accelInMMPerSec = currentValue * 1000.0f;    //mm/s2
-        
-        //if within time, add to data and timeData arrays
-        currentSecs = [[_timeData objectAtIndex:i] doubleValue];
-        if ((currentSecs >= _sliderStartTime.value) && (currentSecs <= _sliderEndTime.value)) {
-            [segmentData addObject:[NSNumber numberWithDouble:accelInMMPerSec]];
-            [segmentTimeData addObject:[NSNumber numberWithDouble:currentSecs - _sliderStartTime.value]];    //re-bases time data to start time as 0
-        }
-    }
+- (void)createAccelerometerChart:(NSArray *)vals time:(NSArray *)time {
     
     //Clear points, add bounding box, add new points
     [_plotAccelerometer clear];
     [APPlotUtils removeAllSubviews:_plotAccelerometer];
-    [APPlotUtils addLabelToView:_plotAccelerometer withFrame:CGRectMake(0.0f, 0.0f, 320.0f, kChartInset) withText:@"Vertical Acceleration, mm/s" withSize:12];
-    [APPlotUtils addLabelToView:_plotAccelerometer withFrame:CGRectMake(228.0f, 5.0f, 10.0f, 12.0f) withText:@"2" withSize:8];
-    if ([segmentData count] == 0)
+    UILabel *label = [APPlotUtils addLabelToView:_plotAccelerometer withFrame:CGRectMake(0.0f, 0.0f, _plotAccelerometer.frame.size.width, kChartInset) withText:@"Acceleration, mm/s  max fast" withSize:12];
+    [APPlotUtils addLabelToView:label withFrame:CGRectMake(182.0f, 5.0f, 10.0f, 8.0f) withText:@"2" withSize:8];
+    if ([vals count] == 0)
         return;
-    [APPlotUtils createChart:_plotAccelerometer withData:segmentData withTimeData:segmentTimeData withInset:kChartInset withLineColor:[UIColor redColor]];
+    [APPlotUtils createChart:_plotAccelerometer withData:vals withTimeData:time withInset:kChartInset withLineColor:[UIColor redColor]];
 }
 
-- (void)createSoundChart {
-
-    NSMutableArray *segmentData = [NSMutableArray new];
-    NSMutableArray *segmentTimeData = [NSMutableArray new];
-
-    double currentValue, amplitude, currentSecs;
-
-    for (int i = 0; i < [_soundData count]; i++) {
-        currentValue = [[_soundData objectAtIndex:i] doubleValue];  //dBFS ie db relative to Full Scale. Range: -160dB to 0dB
-        amplitude =  powf(10.0f, currentValue / 20.0f);             //linear amplitude from dB Full Scale
-        
-        //if within time, add to data and timeData arrays
-        currentSecs = [[_timeData objectAtIndex:i] doubleValue];
-        if ((currentSecs >= _sliderStartTime.value) && (currentSecs <= _sliderEndTime.value)) {
-            [segmentData addObject:[NSNumber numberWithDouble:amplitude]];
-            [segmentTimeData addObject:[NSNumber numberWithDouble:currentSecs - _sliderStartTime.value]];
-        }
-    }
+- (void)createSoundChart:(NSArray *)vals time:(NSArray *)time {
     
     [_plotSound clear];
     [APPlotUtils removeAllSubviews:_plotSound];
-    [APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, 320.0f, kChartInset) withText:@"Sound Level, amplitude" withSize:12];
-    if ([segmentData count] == 0)
+    [APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, _plotSound.frame.size.width, kChartInset) withText:@"Sound Level, dBFS max fast" withSize:12];
+    if ([vals count] == 0)
         return;
-    [APPlotUtils createChart:_plotSound withData:segmentData withTimeData:segmentTimeData withInset:kChartInset withLineColor:[UIColor blueColor]];
+    [APPlotUtils createChart:_plotSound withData:vals withTimeData:time withInset:kChartInset withLineColor:[UIColor blueColor]];
 }
 
 - (void)createVideo:(void (^)(NSNumber *status))block {
@@ -425,6 +423,8 @@
     CGRect frame;
     APEncodeMovie *movie = [[APEncodeMovie alloc] initWithSize:CGSizeMake(640.0f, 880.0f) url:_videoUrl];
     
+    CGFloat outputImageViewWidth = _outputImageView.frame.size.width;
+    
     for (int i = 0; i < frames; i++) {
         if (_isLowMemory) {
             //Alert user of low memory and stop
@@ -437,12 +437,13 @@
             }];
             return;
         }
+        
         //Update progress
         _progressView.progress = ((CGFloat)i / (CGFloat)frames) * 0.95f;
         _labelProgress.text = [NSString stringWithFormat:@"Creating frame %d of %ld", i + 1, (long)frames];
-        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 
-        x = kChartInset + (320.0f - 2.0f * kChartInset) * (((CGFloat)i + 0.5f) / (CGFloat)frames);
+        x = kChartInset + (outputImageViewWidth - 2.0f * kChartInset) * (((CGFloat)i + 0.5f) / (CGFloat)frames);
 
         //Move lines
         frame = _viewLine1.frame;
@@ -467,11 +468,16 @@
 }
 
 - (UIImage *)imageWithView:(UIView *)view {
-    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 2.0f);
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 0.0f);
     [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return image;
+}
+
+- (void)updateProgressLabel:(NSString *)text {
+    _labelProgress.text = text;
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
 - (IBAction)buttonProcessClick:(UIButton *)sender {
@@ -483,45 +489,73 @@
     //rebuild the output view taking into account start / end time settings
     _sliderStartTime.hidden = YES;
     _sliderEndTime.hidden = YES;
-    [self buildOutputView];
-    
+    _labelStartEndTime.hidden = YES;
+    [self buildOutputView: YES];
+
     //Create csv
-    _labelProgress.text = @"Creating csv file";
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
-    [self createCSV];
-    
-    //Create video images
-    _labelProgress.text = @"Creating video frames";
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
-    [self createVideo:^(NSNumber *status) {
-        //Now create the movie
-        _labelProgress.text = @"Creating combined video and audio movie";
-        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
-        [self createMovie];
+    [self updateProgressLabel: @"Creating csv file"];
+    [[APCSVUtils alloc] createCSVFiles:_processedData rebasedUrl:_csvRebasedUrl processedUrl:_csvProcessedUrl];
+
+    //Create audio file with correct duration
+    [self updateProgressLabel: @"Creating audio file"];
+    [[APMovieProcessor alloc] trimAudio:_audioUrl startTime:_sliderStartTime.value endTime:_sliderEndTime.value block:^(NSNumber *status) {
+        
+        //Create video images
+        dispatch_async(dispatch_get_main_queue(), ^{
+
+            [self updateProgressLabel: @"Creating video frames"];
+            [self createVideo:^(NSNumber *status) {
+                
+                //Now create the movie
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    [self updateProgressLabel: @"Creating combined video and audio movie"];
+                    [[APMovieProcessor alloc] createMovieWithVideo:_videoUrl audio:_audioUrl output:_movieUrl block:^(NSNumber *status) {
+                        
+                        //Update button status
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            _progressView.progress = 1.0f;
+                            _labelProgress.text = @"Processing completed";
+                            _buttonStartStop.enabled = NO;
+                            _buttonReset.enabled = YES;
+                            _buttonProcess.enabled = NO;
+                            _buttonEmail.enabled = YES;
+                            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        });
+                    }];
+                });
+            }];
+        });
     }];
 }
 
 - (IBAction)buttonEmailClick:(UIButton *)sender {
     NSString *emailTitle = @"Sound & Vibration Recording";
+    NSDate *start = [[_processedData objectForKey:@"rebasedAccelerometerTime"] firstObject];
+    NSDate *end = [[_processedData objectForKey:@"rebasedAccelerometerTime"] lastObject];
     
     NSDateFormatter *dateFormatter = [NSDateFormatter new];
-    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
-    double duration = [self segmentDuration];
-    NSString *messageBody = [NSString stringWithFormat:@"Recorded at %@, duration %.1f seconds", [dateFormatter stringFromDate:[self segmentStartDate]], duration];
+    dateFormatter.dateFormat = @"yyyy-MM-dd HH.mm.ss";
+    double duration = [end timeIntervalSinceDate:start];
+    NSString *messageBody = [NSString stringWithFormat:@"Recorded at %@, duration %.1f seconds", [dateFormatter stringFromDate:start], duration];
 
     MFMailComposeViewController *mc = [[MFMailComposeViewController alloc] init];
     mc.mailComposeDelegate = self;
     [mc setSubject:emailTitle];
     [mc setMessageBody:messageBody isHTML:NO];
-    //[mc setToRecipients:toRecipents];
     
     //add attachments
-    dateFormatter.dateFormat = @"yyyy-MM-dd HH.mm.ss";
     NSData *fileData = [NSData dataWithContentsOfURL:_movieUrl];
-    [mc addAttachmentData:fileData mimeType:@"video/mp4" fileName:[NSString stringWithFormat:@"recording%@.mp4", [dateFormatter stringFromDate:[self segmentStartDate]]]];
+    [mc addAttachmentData:fileData mimeType:@"video/mp4" fileName:[NSString stringWithFormat:@"recording%@.mp4", [dateFormatter stringFromDate:start]]];
 
-    fileData = [NSData dataWithContentsOfURL:_csvUrl];
-    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"rawdata%@.csv", [dateFormatter stringFromDate:[self segmentStartDate]]]];
+    fileData = [NSData dataWithContentsOfURL:_csvRebasedUrl];
+    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"rawdata%@.csv", [dateFormatter stringFromDate:start]]];
+
+    fileData = [NSData dataWithContentsOfURL:_csvProcessedUrl];
+    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"processeddata%@.csv", [dateFormatter stringFromDate:start]]];
+
+    fileData = [NSData dataWithContentsOfURL:_pdfUrl];
+    [mc addAttachmentData:fileData mimeType:@"application/pdf" fileName:[NSString stringWithFormat:@"page%@.pdf", [dateFormatter stringFromDate:start]]];
 
     // Present mail view controller on screen
     _isShowingEmail = YES;
@@ -531,99 +565,14 @@
 #pragma mark - mailComposeController delegate
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
     [self dismissViewControllerAnimated:YES completion:NULL];
+    _labelProgress.text = @"Email sent";
     _isShowingEmail = NO;
 }
 
-- (void)createMovie {
-    AVURLAsset* videoAsset = [[AVURLAsset alloc]initWithURL:_videoUrl options:nil];
-    AVURLAsset* audioAsset = [[AVURLAsset alloc]initWithURL:_audioUrl options:nil];
-    
-    AVMutableComposition* mixComposition = [AVMutableComposition composition];
-    
-    //Add audio - with cropped time range
-    CMTime start = CMTimeMakeWithSeconds(_sliderStartTime.value, 1);
-    CMTime duration = CMTimeMakeWithSeconds(_sliderEndTime.value - _sliderStartTime.value, 1);
-    CMTimeRange timeRange = CMTimeRangeMake(start, duration);
-    AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-    [compositionAudioTrack insertTimeRange:timeRange ofTrack:[[audioAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0]atTime:kCMTimeZero error:nil];
-    
-    //Add video
-    AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-    [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration) ofTrack:[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:kCMTimeZero error:nil];
-    
-    AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetPassthrough];
-    
-    assetExport.outputFileType = AVFileTypeMPEG4;
-    assetExport.outputURL = _movieUrl;
-    assetExport.shouldOptimizeForNetworkUse = YES;
-    [assetExport exportAsynchronouslyWithCompletionHandler:^{
-        if (assetExport.status != AVAssetExportSessionStatusCompleted) {
-            NSLog(@"There was a problem exporting: status code %ld", (long)assetExport.status);
-        }
-        else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                _progressView.progress = 1.0f;
-                _labelProgress.text = @"Processing completed";
-                _buttonStartStop.enabled = NO;
-                _buttonReset.enabled = YES;
-                _buttonProcess.enabled = NO;
-                _buttonEmail.enabled = YES;
-                [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];
-            });
-        }
-    }];
-}
-
-- (void)createCSV {
-    NSDateFormatter *dateFormatter = [NSDateFormatter new];
-    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
-    double duration = [self segmentDuration];
-    NSMutableString *csv = [NSMutableString new];
-    
-    [csv appendString:[NSString stringWithFormat:@"Sound & Vibration Recording - Raw Data\nRecorded at %@ duration %.1f seconds\n\n", [dateFormatter stringFromDate:[self segmentStartDate]], duration]];
-    [csv appendString:@"Date,Seconds,Acceleration (m/s/s),Sound (dBFS)"];
-    
-    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSSS";
-    NSDate *readingDate;
-    NSTimeInterval readingSecs;
-    for (int i = 0; i < [_timeData count]; i++) {
-        readingSecs = [[_timeData objectAtIndex:i] doubleValue];
-        readingDate = [_startDate dateByAddingTimeInterval:readingSecs];  //create full NSDate for this reading
-        [csv appendFormat:@"\n\"%@\",%f,%f,%f",
-            [dateFormatter stringFromDate:readingDate],
-            readingSecs,
-            [[_accelerometerData objectAtIndex:i] doubleValue],
-            [[_soundData objectAtIndex:i] doubleValue]
-         ];
+- (void)deleteAudioFileIfExists {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[_audioUrl path]]) {
+        [[NSFileManager defaultManager] removeItemAtPath:[_audioUrl path] error:nil];
     }
-    NSError *error;
-    [csv writeToURL:_csvUrl atomically:YES encoding:NSUTF8StringEncoding error:&error];
-}
-
-- (void)setupFiles {
-    NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tempvideo.mp4"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-    }
-    _videoUrl = [NSURL fileURLWithPath:path];
-
-    path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tempaudio.m4a"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-    }
-    _audioUrl = [NSURL fileURLWithPath:path];
-
-    path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"recording.mp4"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-    }
-    _movieUrl = [NSURL fileURLWithPath:path];
-
-    path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"rawdata.csv"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-    }
-    _csvUrl = [NSURL fileURLWithPath:path];
 }
 
 

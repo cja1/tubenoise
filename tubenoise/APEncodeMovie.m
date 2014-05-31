@@ -28,6 +28,11 @@
     if (self) {
         NSError *error = nil;
         
+        //delete file if exists
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[url path]]) {
+            [[NSFileManager defaultManager] removeItemAtPath:[url path] error:nil];
+        }
+
         //Video writer
         _videoWriter = [[AVAssetWriter alloc] initWithURL: url fileType:AVFileTypeMPEG4 error:&error];
         NSParameterAssert(_videoWriter);

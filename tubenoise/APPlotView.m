@@ -37,7 +37,7 @@
     CGContextDrawLayerInRect(currentContext, bounds, _drawingLayer);
 }
 
-- (void) plotLineFrom:(CGPoint)pointStart to:(CGPoint)pointEnd withColor:(UIColor *)color withWidth:(CGFloat)lineWidth {
+- (void)plotLineFrom:(CGPoint)pointStart to:(CGPoint)pointEnd withColor:(UIColor *)color withWidth:(CGFloat)lineWidth {
     
     CGContextRef layerContext = CGLayerGetContext(_drawingLayer);
     
