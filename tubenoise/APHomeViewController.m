@@ -77,10 +77,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _graphViewAccelerometer = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 60.0f, 320.0f, 112.0f) lineColor:[UIColor redColor].CGColor];
+    _graphViewAccelerometer = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 80.0f, 320.0f, 112.0f) lineColor:[UIColor redColor].CGColor];
     [self.view addSubview:_graphViewAccelerometer];
     [self.view sendSubviewToBack:_graphViewAccelerometer];
-    _graphViewSound = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 220.0f, 320.0f, 112.0f) lineColor:[UIColor blueColor].CGColor];
+    _graphViewSound = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 260.0f, 320.0f, 112.0f) lineColor:[UIColor blueColor].CGColor];
     [self.view addSubview:_graphViewSound];
     [self.view sendSubviewToBack:_graphViewSound];
     
@@ -90,7 +90,7 @@
     
     //setup all files urls
     _videoUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"tempvideo.mp4"]];
-    _audioUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"tempaudio.m4a"]];
+    _audioUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"tempaudio.caf"]];
     _movieUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"recording.mp4"]];
     _csvRebasedUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"rebaseddata.csv"]];
     _csvProcessedUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"processeddata.csv"]];
@@ -100,12 +100,13 @@
     
     // Setup audio session
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord error:nil];
+    [[AVAudioSession sharedInstance] setMode: AVAudioSessionModeMeasurement error:nil]; //When this mode is in use, the device does minimal signal processing on input and output audio
     [[AVAudioSession sharedInstance] setActive:YES error:nil];
     
     // Define the recorder setting
     NSDictionary *recordSetting = [[NSDictionary alloc] initWithObjectsAndKeys:
                                    [NSNumber numberWithInt:AVAudioQualityMax],      AVEncoderAudioQualityKey,
-                                   [NSNumber numberWithInt:kAudioFormatMPEG4AAC],   AVFormatIDKey,
+                                   [NSNumber numberWithInt:kAudioFormatAppleLossless],   AVFormatIDKey,  //
                                    [NSNumber numberWithFloat:44100.0],              AVSampleRateKey,
                                    [NSNumber numberWithInt: 1],                     AVNumberOfChannelsKey,
                                    nil];
@@ -237,7 +238,9 @@
         //Create views with charts and show
         [[UIApplication sharedApplication] setStatusBarHidden:YES];
         [self setupStartEndSliders];    //sets sliders to 0 / duration
-        [self buildOutputView:NO];         //build charts based on 0 start and duration end
+        [self updateProgressLabel: @"Creating charts"];
+
+        [self buildOutputView];         //build charts based on 0 start and duration end
         
         _progressView.hidden = NO;
         _labelProgress.hidden = NO;
@@ -289,7 +292,7 @@
     _outputView.userInteractionEnabled = YES;
     
     //title / subtitile
-    [APPlotUtils addLabelToView:_outputView withFrame:CGRectMake(0.0f, 10.0f, width, 26.0f) withText:[NSString stringWithFormat:@"Sound & Vibration Recorder"] withSize:22];
+    [APPlotUtils addLabelToView:_outputView withFrame:CGRectMake(0.0f, 10.0f, width, 26.0f) withText:[NSString stringWithFormat:@"TubeNoise: Sound & Vibration Recording"] withSize:18];
     _outputSubtitle = [APPlotUtils addLabelToView:_outputView withFrame:CGRectMake(0.0f, 40.0f, width, 20.0f) withText:@"Recorded at ..." withSize:12];
     
     //plots
@@ -364,7 +367,7 @@
     return _sliderEndTime.value - _sliderStartTime.value;
 }
 
-- (void)buildOutputView:(BOOL)isFinalView {
+- (void)buildOutputView {
 
     NSDateFormatter *dateFormatter = [NSDateFormatter new];
     dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
@@ -378,11 +381,6 @@
     [self createAccelerometerChart:[_processedData objectForKey:@"processedAccelerometerVals"] time:[_processedData objectForKey:@"processedAccelerometerTime"]];
     [self createSoundChart:[_processedData objectForKey:@"processedSoundVals"] time:[_processedData objectForKey:@"processedSoundTime"]];
     
-    //if final view, also create pdf
-    if (isFinalView) {
-        [[APPDFRenderer alloc] createPDF:_processedData url:_pdfUrl];
-    }
-    
     _outputView.hidden = NO;
 }
 
@@ -391,7 +389,8 @@
     //Clear points, add bounding box, add new points
     [_plotAccelerometer clear];
     [APPlotUtils removeAllSubviews:_plotAccelerometer];
-    UILabel *label = [APPlotUtils addLabelToView:_plotAccelerometer withFrame:CGRectMake(0.0f, 0.0f, _plotAccelerometer.frame.size.width, kChartInset) withText:@"Acceleration, mm/s  max fast" withSize:12];
+        
+    UILabel *label = [APPlotUtils addLabelToView:_plotAccelerometer withFrame:CGRectMake(0.0f, 0.0f, _plotAccelerometer.frame.size.width, kChartInset) withText:@"Acceleration, mm/s  max fast" withFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:12] withAlignment:NSTextAlignmentCenter withColor:[UIColor blackColor]];
     [APPlotUtils addLabelToView:label withFrame:CGRectMake(182.0f, 5.0f, 10.0f, 8.0f) withText:@"2" withSize:8];
     if ([vals count] == 0)
         return;
@@ -402,7 +401,9 @@
     
     [_plotSound clear];
     [APPlotUtils removeAllSubviews:_plotSound];
-    [APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, _plotSound.frame.size.width, kChartInset) withText:@"Sound Level, dBFS max fast" withSize:12];
+    [APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, _plotSound.frame.size.width, kChartInset) withText:@"Sound Level, dBFS max fast" withFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:12] withAlignment:NSTextAlignmentCenter withColor:[UIColor blackColor]];
+
+    //[APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, _plotSound.frame.size.width, kChartInset) withText:@"Sound Level, dBFS max fast" withSize:12];
     if ([vals count] == 0)
         return;
     [APPlotUtils createChart:_plotSound withData:vals withTimeData:time withInset:kChartInset withLineColor:[UIColor blueColor]];
@@ -490,15 +491,20 @@
     _sliderStartTime.hidden = YES;
     _sliderEndTime.hidden = YES;
     _labelStartEndTime.hidden = YES;
-    [self buildOutputView: YES];
+    [self updateProgressLabel: @"Creating charts"];
+    [self buildOutputView];
+
+    //Create pdfs
+    [self updateProgressLabel: @"Creating pdf"];
+    [[APPDFRenderer alloc] createPDF:_processedData url:_pdfUrl];
 
     //Create csv
-    [self updateProgressLabel: @"Creating csv file"];
+    [self updateProgressLabel: @"Creating csv files"];
     [[APCSVUtils alloc] createCSVFiles:_processedData rebasedUrl:_csvRebasedUrl processedUrl:_csvProcessedUrl];
-
+    
     //Create audio file with correct duration
     [self updateProgressLabel: @"Creating audio file"];
-    [[APMovieProcessor alloc] trimAudio:_audioUrl startTime:_sliderStartTime.value endTime:_sliderEndTime.value block:^(NSNumber *status) {
+    [[APMovieProcessor alloc] trimCAFAudio:_audioUrl startTime:_sliderStartTime.value endTime:_sliderEndTime.value block:^(NSNumber *status) {
         
         //Create video images
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -544,18 +550,26 @@
     [mc setSubject:emailTitle];
     [mc setMessageBody:messageBody isHTML:NO];
     
+    //add default email address if set
+    if ([[[NSUserDefaults standardUserDefaults] objectForKey:@"defaultEmailAddress"] length]) {
+        [mc setToRecipients:[NSArray arrayWithObject:[[NSUserDefaults standardUserDefaults] objectForKey:@"defaultEmailAddress"]]];
+    }
+    
     //add attachments
     NSData *fileData = [NSData dataWithContentsOfURL:_movieUrl];
     [mc addAttachmentData:fileData mimeType:@"video/mp4" fileName:[NSString stringWithFormat:@"recording%@.mp4", [dateFormatter stringFromDate:start]]];
 
-    fileData = [NSData dataWithContentsOfURL:_csvRebasedUrl];
-    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"rawdata%@.csv", [dateFormatter stringFromDate:start]]];
-
-    fileData = [NSData dataWithContentsOfURL:_csvProcessedUrl];
-    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"processeddata%@.csv", [dateFormatter stringFromDate:start]]];
-
     fileData = [NSData dataWithContentsOfURL:_pdfUrl];
     [mc addAttachmentData:fileData mimeType:@"application/pdf" fileName:[NSString stringWithFormat:@"page%@.pdf", [dateFormatter stringFromDate:start]]];
+
+    fileData = [NSData dataWithContentsOfURL:_audioUrl];
+    [mc addAttachmentData:fileData mimeType:@"audio/x-caf" fileName:[NSString stringWithFormat:@"audio%@.caf", [dateFormatter stringFromDate:start]]];
+
+    fileData = [NSData dataWithContentsOfURL:_csvRebasedUrl];
+    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"rawdata%@.csv", [dateFormatter stringFromDate:start]]];
+    
+    fileData = [NSData dataWithContentsOfURL:_csvProcessedUrl];
+    [mc addAttachmentData:fileData mimeType:@"text/csv" fileName:[NSString stringWithFormat:@"processeddata%@.csv", [dateFormatter stringFromDate:start]]];
 
     // Present mail view controller on screen
     _isShowingEmail = YES;

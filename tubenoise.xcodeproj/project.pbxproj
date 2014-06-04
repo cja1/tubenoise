@@ -12,6 +12,7 @@
 		F144D42C193707E400F6D2FA /* APDataProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = F144D42B193707E400F6D2FA /* APDataProcessor.m */; };
 		F15A58F11937331300566F23 /* APMovieProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = F15A58F01937331300566F23 /* APMovieProcessor.m */; };
 		F17D3892193869D40046DAAB /* APCSVUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F17D3891193869D40046DAAB /* APCSVUtils.m */; };
+		F18F5D6A193C6B4900405E77 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = F18F5D69193C6B4800405E77 /* Settings.bundle */; };
 		F1B2E7E9192F6E8100C8B5D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7E8192F6E8100C8B5D6 /* Foundation.framework */; };
 		F1B2E7EB192F6E8100C8B5D6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7EA192F6E8100C8B5D6 /* CoreGraphics.framework */; };
 		F1B2E7ED192F6E8100C8B5D6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7EC192F6E8100C8B5D6 /* UIKit.framework */; };
@@ -55,6 +56,7 @@
 		F15A58F01937331300566F23 /* APMovieProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APMovieProcessor.m; sourceTree = "<group>"; };
 		F17D3890193869D40046DAAB /* APCSVUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APCSVUtils.h; sourceTree = "<group>"; };
 		F17D3891193869D40046DAAB /* APCSVUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APCSVUtils.m; sourceTree = "<group>"; };
+		F18F5D69193C6B4800405E77 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		F1B2E7E5192F6E8100C8B5D6 /* tubenoise.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tubenoise.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1B2E7E8192F6E8100C8B5D6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F1B2E7EA192F6E8100C8B5D6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -185,6 +187,7 @@
 				F1B2E7F1192F6E8100C8B5D6 /* InfoPlist.strings */,
 				F1B2E7F4192F6E8100C8B5D6 /* main.m */,
 				F1B2E7F6192F6E8100C8B5D6 /* tubenoise-Prefix.pch */,
+				F18F5D69193C6B4800405E77 /* Settings.bundle */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -285,6 +288,7 @@
 			files = (
 				F1B2E81F192F70BE00C8B5D6 /* APHomeViewController.xib in Resources */,
 				F1B2E7F3192F6E8100C8B5D6 /* InfoPlist.strings in Resources */,
+				F18F5D6A193C6B4900405E77 /* Settings.bundle in Resources */,
 				F1B2E7FB192F6E8100C8B5D6 /* Images.xcassets in Resources */,
 				F108553C193784D600E7C82E /* PDFTemplate.xib in Resources */,
 			);

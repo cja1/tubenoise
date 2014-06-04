@@ -12,9 +12,12 @@
 @implementation APAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    NSDictionary *appDefaults = [NSDictionary dictionaryWithObject:@"" forKey:@"defaultEmailAddress"];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
     self.window.rootViewController = [APHomeViewController new];
 
     self.window.backgroundColor = [UIColor whiteColor];

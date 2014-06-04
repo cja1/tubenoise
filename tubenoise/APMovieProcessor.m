@@ -11,36 +11,77 @@
 
 @implementation APMovieProcessor
 
-- (void)trimAudio:(NSURL *)audioUrl startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime block:(void (^)(NSNumber *status))block {
+- (void)trimCAFAudio:(NSURL *)audioUrlIn startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime block:(void (^)(NSNumber *status))block {
+    
+    CMTime start = CMTimeMake(startTime * 100.0f, 100); //0.01 second resolution
+    CMTime duration = CMTimeMake((endTime - startTime) * 100.0f, 100);
+    CMTimeRange timeRange = CMTimeRangeMake(start, duration);
+    NSError *error;
+    
+    NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tempaudio2.caf"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
+    }
+    NSURL *trimmedAudioUrl = [NSURL fileURLWithPath:path];
+    [[NSFileManager defaultManager] copyItemAtURL:audioUrlIn toURL:trimmedAudioUrl error:&error];
+    
+    //delete original
+    [[NSFileManager defaultManager] removeItemAtURL:audioUrlIn error:&error];
+    
+    //Create new composition
+    AVMutableComposition* mixComposition = [AVMutableComposition composition];
+    
+    //Add audio - with cropped time range
+    AVURLAsset* audioAsset = [[AVURLAsset alloc] initWithURL:trimmedAudioUrl options:nil];
+    AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+    [compositionAudioTrack insertTimeRange:timeRange ofTrack:[[audioAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:kCMTimeZero error:&error];
+    
+    AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetPassthrough];
+    
+    assetExport.outputFileType = AVFileTypeCoreAudioFormat;
+    assetExport.outputURL = audioUrlIn;     //write to original url location
+    assetExport.shouldOptimizeForNetworkUse = YES;
+    [assetExport exportAsynchronouslyWithCompletionHandler:^{
+        if (block) {
+            if (assetExport.status == AVAssetExportSessionStatusCompleted) {
+                block([NSNumber numberWithInteger:1]);
+            }
+            else {
+                block([NSNumber numberWithInteger:0]);
+            }
+        }
+    }];
+}
+
+- (void)trimM4AAudio:(NSURL *)audioUrlIn startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime block:(void (^)(NSNumber *status))block {
     
     CMTime start = CMTimeMake(startTime * 100.0f, 100); //0.01 second resolution
     CMTime duration = CMTimeMake((endTime - startTime) * 100.0f, 100);
     CMTimeRange timeRange = CMTimeRangeMake(start, duration);
     NSError *error;
 
-    //take a copy of the file
     NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tempaudio2.m4a"];
     if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
         [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
     }
-    NSURL *tempUrl = [NSURL fileURLWithPath:path];
-    [[NSFileManager defaultManager] copyItemAtURL:audioUrl toURL:tempUrl error:&error];
+    NSURL *trimmedAudioUrl = [NSURL fileURLWithPath:path];
+    [[NSFileManager defaultManager] copyItemAtURL:audioUrlIn toURL:trimmedAudioUrl error:&error];
 
     //delete original
-    [[NSFileManager defaultManager] removeItemAtURL:audioUrl error:&error];
+    [[NSFileManager defaultManager] removeItemAtURL:audioUrlIn error:&error];
     
     //Create new composition
     AVMutableComposition* mixComposition = [AVMutableComposition composition];
     
     //Add audio - with cropped time range
-    AVURLAsset* audioAsset = [[AVURLAsset alloc]initWithURL:tempUrl options:nil];
+    AVURLAsset* audioAsset = [[AVURLAsset alloc] initWithURL:trimmedAudioUrl options:nil];
     AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
     [compositionAudioTrack insertTimeRange:timeRange ofTrack:[[audioAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:kCMTimeZero error:&error];
     
     AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetPassthrough];
     
     assetExport.outputFileType = AVFileTypeAppleM4A;
-    assetExport.outputURL = audioUrl;   //overwrite file in
+    assetExport.outputURL = audioUrlIn;     //write to original url location
     assetExport.shouldOptimizeForNetworkUse = YES;
     [assetExport exportAsynchronouslyWithCompletionHandler:^{
         if (block) {

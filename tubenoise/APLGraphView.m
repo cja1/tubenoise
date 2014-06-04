@@ -22,7 +22,7 @@ CGColorRef CreateDeviceGrayColor(CGFloat w, CGFloat a) {
 CGColorRef graphBackgroundColor() {
     static CGColorRef c = NULL;
     if (c == NULL) {
-        c = CreateDeviceGrayColor(0.6, 1.0);
+        c = CreateDeviceGrayColor(1.0, 1.0);
     }
     return c;
 }

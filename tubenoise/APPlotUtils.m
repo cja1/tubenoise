@@ -98,7 +98,7 @@
         percentOfRange =  (yVal - yStart) / (yEnd - yStart);
         y = plot.frame.size.height - inset - percentOfRange * yRange;
 
-        [self addLabelToView:plot withFrame:CGRectMake(5.0f, y - 4.0f, 40.0f, 8.0f) withText:[NSString stringWithFormat:@"%.2g", yVal]withSize:8 withAlignment:NSTextAlignmentLeft];
+        [self addLabelToView:plot withFrame:CGRectMake(0.0f, y - 4.0f, inset - 5.0f, 8.0f) withText:[NSString stringWithFormat:@"%.2g", yVal]withSize:8 withAlignment:NSTextAlignmentRight];
 
         [plot plotLineFrom:CGPointMake(inset, y) to:CGPointMake(plot.frame.size.width - inset, y) withColor:[UIColor grayColor] withWidth:1.0f];
         
@@ -107,16 +107,20 @@
 }
 
 
-+ (UILabel *)addLabelToView:(UIView *)view withFrame:(CGRect)frame withText:(NSString *)text withSize:(NSInteger)size withAlignment:(NSTextAlignment)alignment withColor:(UIColor *)color {
++ (UILabel *)addLabelToView:(UIView *)view withFrame:(CGRect)frame withText:(NSString *)text withFont:(UIFont *)font withAlignment:(NSTextAlignment)alignment withColor:(UIColor *)color {
     UILabel *label = [[UILabel alloc] initWithFrame:frame];
     label.text = text;
-    label.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:size];
+    label.font = font;
     label.textColor = color;
     label.textAlignment = alignment;
     if (view) {
         [view addSubview:label];
     }
     return label;
+}
+
++ (UILabel *)addLabelToView:(UIView *)view withFrame:(CGRect)frame withText:(NSString *)text withSize:(NSInteger)size withAlignment:(NSTextAlignment)alignment withColor:(UIColor *)color {
+    return [self addLabelToView:view withFrame:frame withText:text withFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:size] withAlignment:alignment withColor:color];
 }
 
 + (UILabel *)addLabelToView:(UIView *)view withFrame:(CGRect)frame withText:(NSString *)text withSize:(NSInteger)size withAlignment:(NSTextAlignment)alignment {

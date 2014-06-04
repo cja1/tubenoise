@@ -10,7 +10,9 @@
 
 @interface APMovieProcessor : NSObject
 
-- (void)trimAudio:(NSURL *)audioUrl startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime block:(void (^)(NSNumber *status))block;
+- (void)trimCAFAudio:(NSURL *)audioUrlIn startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime block:(void (^)(NSNumber *status))block;
+
+- (void)trimM4AAudio:(NSURL *)audioUrlIn startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime block:(void (^)(NSNumber *status))block;
 
 - (void)createMovieWithVideo:(NSURL *)videoUrl audio:(NSURL *)audioUrl output:(NSURL *)outputUrl block:(void (^)(NSNumber *status))block;
 
