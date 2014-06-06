@@ -3,7 +3,7 @@
 //  tubenoise
 //
 //  Created by Charles Allen on 23/05/2014.
-//  Copyright (c) 2014 Agile Projects Ltd. All rights reserved.
+//  Copyright (c) 2014 Charles Allen. All rights reserved.
 //
 
 #import "APAppDelegate.h"
@@ -13,7 +13,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    NSDictionary *appDefaults = [NSDictionary dictionaryWithObject:@"" forKey:@"defaultEmailAddress"];
+    NSDictionary *appDefaults = @{@"includeAccelerometerVideo": [NSNumber numberWithBool:YES], @"defaultEmailAddress": @""};
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     [[NSUserDefaults standardUserDefaults] synchronize];
     

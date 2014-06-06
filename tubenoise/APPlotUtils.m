@@ -3,7 +3,7 @@
 //  tubenoise
 //
 //  Created by Charles Allen on 27/05/2014.
-//  Copyright (c) 2014 Agile Projects Ltd. All rights reserved.
+//  Copyright (c) 2014 Charles Allen. All rights reserved.
 //
 
 #import "APPlotUtils.h"

@@ -3,7 +3,7 @@
 //  tubenoise
 //
 //  Created by Charles Allen on 23/05/2014.
-//  Copyright (c) 2014 Agile Projects Ltd. All rights reserved.
+//  Copyright (c) 2014 Charles Allen. All rights reserved.
 //
 
 #import "APHomeViewController.h"
@@ -77,10 +77,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _graphViewAccelerometer = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 80.0f, 320.0f, 112.0f) lineColor:[UIColor redColor].CGColor];
+    _graphViewAccelerometer = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 260.0f, 320.0f, 112.0f) lineColor:[UIColor redColor].CGColor];
     [self.view addSubview:_graphViewAccelerometer];
     [self.view sendSubviewToBack:_graphViewAccelerometer];
-    _graphViewSound = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 260.0f, 320.0f, 112.0f) lineColor:[UIColor blueColor].CGColor];
+    _graphViewSound = [[APLGraphView alloc] initWithFrame:CGRectMake(0.0f, 80.0f, 320.0f, 112.0f) lineColor:[UIColor blueColor].CGColor];
     [self.view addSubview:_graphViewSound];
     [self.view sendSubviewToBack:_graphViewSound];
     
@@ -177,12 +177,12 @@
     [[AppDelegate sharedMotionManager] stopDeviceMotionUpdates];
 }
 
-- (IBAction)sliderAccelerometerValueChanged:(id)sender {
-    _labelAccelerometerSensitivity.text = [NSString stringWithFormat:@"Display Sensitivity: %.0f", _sliderAccelerometerSensitivity.value / (_sliderAccelerometerSensitivity.maximumValue - _sliderAccelerometerSensitivity.minimumValue) * 9.0f + 1.0f];
-}
-
 - (IBAction)sliderSoundValueChanged:(id)sender {
     _labelSoundSensitivity.text = [NSString stringWithFormat:@"Display Sensitivity: %.0f", _sliderSoundSensitivity.value / (_sliderSoundSensitivity.maximumValue - _sliderSoundSensitivity.minimumValue) * 9.0f + 1.0f];
+}
+
+- (IBAction)sliderAccelerometerValueChanged:(id)sender {
+    _labelAccelerometerSensitivity.text = [NSString stringWithFormat:@"Display Sensitivity: %.0f", _sliderAccelerometerSensitivity.value / (_sliderAccelerometerSensitivity.maximumValue - _sliderAccelerometerSensitivity.minimumValue) * 9.0f + 1.0f];
 }
 
 - (IBAction)buttonStartStopClick:(UIButton *)sender {
@@ -238,7 +238,7 @@
         //Create views with charts and show
         [[UIApplication sharedApplication] setStatusBarHidden:YES];
         [self setupStartEndSliders];    //sets sliders to 0 / duration
-        [self updateProgressLabel: @"Creating charts"];
+        [self updateProgressLabel: @"Creating charts" progress:0.0f];
 
         [self buildOutputView];         //build charts based on 0 start and duration end
         
@@ -291,20 +291,20 @@
     _outputView.backgroundColor = [UIColor whiteColor];
     _outputView.userInteractionEnabled = YES;
     
-    //title / subtitile
+    //title / subtitle
     [APPlotUtils addLabelToView:_outputView withFrame:CGRectMake(0.0f, 10.0f, width, 26.0f) withText:[NSString stringWithFormat:@"TubeNoise: Sound & Vibration Recording"] withSize:18];
     _outputSubtitle = [APPlotUtils addLabelToView:_outputView withFrame:CGRectMake(0.0f, 40.0f, width, 20.0f) withText:@"Recorded at ..." withSize:12];
     
     //plots
-    _plotAccelerometer = [[APPlotView alloc] initWithFrame:CGRectMake(0.0f, titleHeight, width, plotHeight)];
-    [_outputView addSubview:_plotAccelerometer];
-    _plotAccelerometer.backgroundColor = [UIColor whiteColor];
+    _plotSound = [[APPlotView alloc] initWithFrame:CGRectMake(0.0f, titleHeight, width, plotHeight)];
+    [_outputView addSubview:_plotSound];
+    _plotSound.backgroundColor = [UIColor whiteColor];
     
     //Add sound view
     CGFloat plotSoundY = titleHeight + plotHeight + plotGap;
-    _plotSound = [[APPlotView alloc] initWithFrame:CGRectMake(0.0f, plotSoundY, width, plotHeight)];
-    [_outputView addSubview:_plotSound];
-    _plotSound.backgroundColor = [UIColor whiteColor];
+    _plotAccelerometer = [[APPlotView alloc] initWithFrame:CGRectMake(0.0f, plotSoundY, width, plotHeight)];
+    [_outputView addSubview:_plotAccelerometer];
+    _plotAccelerometer.backgroundColor = [UIColor whiteColor];
     
     //Add sliders for start / end cropping of video
     UIImage *greenLine = [APPlotUtils imageFromColor:[UIColor greenColor] withRect:CGRectMake(0.0, 0.0, 4.0, 2 * (plotHeight - kChartInset) + plotGap)];
@@ -326,7 +326,6 @@
     //Add to main view and hide
     [self.view addSubview:_outputView];
     _outputView.hidden = YES;
-    
     
     //Output image view - used to show individual frames while processing
     _outputImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, width, height)];
@@ -377,16 +376,26 @@
     _processedData = [NSMutableDictionary dictionaryWithObjectsAndKeys:_accelerometerData, @"accelerometerVals", _timeData, @"accelerometerTime", _soundData, @"soundVals", _timeData, @"soundTime", nil];
     [[APDataProcessor alloc] processData:_processedData startTime:_sliderStartTime.value endTime:_sliderEndTime.value];
     
-    //always create the charts
+    //Create the charts
     [self createAccelerometerChart:[_processedData objectForKey:@"processedAccelerometerVals"] time:[_processedData objectForKey:@"processedAccelerometerTime"]];
     [self createSoundChart:[_processedData objectForKey:@"processedSoundVals"] time:[_processedData objectForKey:@"processedSoundTime"]];
     
     _outputView.hidden = NO;
 }
 
+- (void)createSoundChart:(NSArray *)vals time:(NSArray *)time {
+    
+    [_plotSound clear];
+    [APPlotUtils removeAllSubviews:_plotSound];
+    [APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, _plotSound.frame.size.width, kChartInset) withText:@"Sound Level, dBFS max fast" withFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:12] withAlignment:NSTextAlignmentCenter withColor:[UIColor blackColor]];
+    
+    if ([vals count] == 0)
+        return;
+    [APPlotUtils createChart:_plotSound withData:vals withTimeData:time withInset:kChartInset withLineColor:[UIColor blueColor]];
+}
+
 - (void)createAccelerometerChart:(NSArray *)vals time:(NSArray *)time {
     
-    //Clear points, add bounding box, add new points
     [_plotAccelerometer clear];
     [APPlotUtils removeAllSubviews:_plotAccelerometer];
         
@@ -395,18 +404,6 @@
     if ([vals count] == 0)
         return;
     [APPlotUtils createChart:_plotAccelerometer withData:vals withTimeData:time withInset:kChartInset withLineColor:[UIColor redColor]];
-}
-
-- (void)createSoundChart:(NSArray *)vals time:(NSArray *)time {
-    
-    [_plotSound clear];
-    [APPlotUtils removeAllSubviews:_plotSound];
-    [APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, _plotSound.frame.size.width, kChartInset) withText:@"Sound Level, dBFS max fast" withFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:12] withAlignment:NSTextAlignmentCenter withColor:[UIColor blackColor]];
-
-    //[APPlotUtils addLabelToView:_plotSound withFrame:CGRectMake(0.0f, 0.0f, _plotSound.frame.size.width, kChartInset) withText:@"Sound Level, dBFS max fast" withSize:12];
-    if ([vals count] == 0)
-        return;
-    [APPlotUtils createChart:_plotSound withData:vals withTimeData:time withInset:kChartInset withLineColor:[UIColor blueColor]];
 }
 
 - (void)createVideo:(void (^)(NSNumber *status))block {
@@ -422,7 +419,10 @@
 
     CGFloat x;
     CGRect frame;
-    APEncodeMovie *movie = [[APEncodeMovie alloc] initWithSize:CGSizeMake(640.0f, 880.0f) url:_videoUrl];
+    
+    BOOL includeAccelerometerVideo = [[[NSUserDefaults standardUserDefaults] objectForKey:@"includeAccelerometerVideo"] boolValue];
+    CGSize movieSize = CGSizeMake(640.0f, includeAccelerometerVideo ? 880.0f : 520.0f);
+    APEncodeMovie *movie = [[APEncodeMovie alloc] initWithSize:movieSize url:_videoUrl];
     
     CGFloat outputImageViewWidth = _outputImageView.frame.size.width;
     
@@ -439,11 +439,6 @@
             return;
         }
         
-        //Update progress
-        _progressView.progress = ((CGFloat)i / (CGFloat)frames) * 0.95f;
-        _labelProgress.text = [NSString stringWithFormat:@"Creating frame %d of %ld", i + 1, (long)frames];
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-
         x = kChartInset + (outputImageViewWidth - 2.0f * kChartInset) * (((CGFloat)i + 0.5f) / (CGFloat)frames);
 
         //Move lines
@@ -453,10 +448,14 @@
         frame = _viewLine2.frame;
         frame.origin.x = x;
         _viewLine2.frame = frame;
-        
-        //Create image and add to movie. Use autorelease pool to ensre the image is freed up quickly.
+
+        //Update progress
+        [self updateProgressLabel:[NSString stringWithFormat:@"Creating frame %d of %ld", i + 1, (long)frames] progress:((CGFloat)i / (CGFloat)frames) * 0.95f];
+
+        //Create image and add to movie. Use autorelease pool to ensure the image is freed up quickly.
         @autoreleasepool {
-            UIImage *image = [self imageWithView:_outputImageView];
+            UIImage *image = [self imageWithView:_outputImageView withFrame:CGRectMake(0.0f, 0.0f, outputImageViewWidth, includeAccelerometerVideo ? 440.0f : 260.0f)];
+            //UIImage *image = [self imageWithView:_outputImageView];
             [movie addImage:image frameNum:i fps:kFramesPerSec];
             image = nil;
         }
@@ -468,16 +467,26 @@
     }];
 }
 
+//Crops the image to the frame size (height) to exclude the acceleration view
+- (UIImage *)imageWithView:(UIView *)view withFrame:(CGRect)frame {
+    UIGraphicsBeginImageContextWithOptions(frame.size, view.opaque, 2.0f);    //request at retina scale
+    [view drawViewHierarchyInRect:view.frame afterScreenUpdates:YES];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
 - (UIImage *)imageWithView:(UIView *)view {
-    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 0.0f);
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 2.0f);    //request at retina scale
     [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return image;
 }
 
-- (void)updateProgressLabel:(NSString *)text {
+- (void)updateProgressLabel:(NSString *)text progress:(CGFloat)progress {
     _labelProgress.text = text;
+    _progressView.progress = progress;
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
@@ -491,37 +500,36 @@
     _sliderStartTime.hidden = YES;
     _sliderEndTime.hidden = YES;
     _labelStartEndTime.hidden = YES;
-    [self updateProgressLabel: @"Creating charts"];
+    [self updateProgressLabel: @"Creating charts" progress:0.0f];
     [self buildOutputView];
 
     //Create pdfs
-    [self updateProgressLabel: @"Creating pdf"];
+    [self updateProgressLabel: @"Creating pdf" progress:0.0f];
     [[APPDFRenderer alloc] createPDF:_processedData url:_pdfUrl];
 
     //Create csv
-    [self updateProgressLabel: @"Creating csv files"];
+    [self updateProgressLabel: @"Creating csv files" progress:0.0f];
     [[APCSVUtils alloc] createCSVFiles:_processedData rebasedUrl:_csvRebasedUrl processedUrl:_csvProcessedUrl];
     
     //Create audio file with correct duration
-    [self updateProgressLabel: @"Creating audio file"];
+    [self updateProgressLabel: @"Creating audio file" progress:0.0f];
     [[APMovieProcessor alloc] trimCAFAudio:_audioUrl startTime:_sliderStartTime.value endTime:_sliderEndTime.value block:^(NSNumber *status) {
         
         //Create video images
         dispatch_async(dispatch_get_main_queue(), ^{
 
-            [self updateProgressLabel: @"Creating video frames"];
+            [self updateProgressLabel: @"Creating video frames" progress:0.0f];
             [self createVideo:^(NSNumber *status) {
                 
                 //Now create the movie
                 dispatch_async(dispatch_get_main_queue(), ^{
                     
-                    [self updateProgressLabel: @"Creating combined video and audio movie"];
+                    [self updateProgressLabel: @"Creating combined video and audio movie" progress:0.97f];
                     [[APMovieProcessor alloc] createMovieWithVideo:_videoUrl audio:_audioUrl output:_movieUrl block:^(NSNumber *status) {
                         
                         //Update button status
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            _progressView.progress = 1.0f;
-                            _labelProgress.text = @"Processing completed";
+                            [self updateProgressLabel: @"Processing completed" progress:1.0f];
                             _buttonStartStop.enabled = NO;
                             _buttonReset.enabled = YES;
                             _buttonProcess.enabled = NO;

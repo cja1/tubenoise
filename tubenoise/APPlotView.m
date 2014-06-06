@@ -3,7 +3,7 @@
 //  tubenoise
 //
 //  Created by Charles Allen on 23/05/2014.
-//  Copyright (c) 2014 Agile Projects Ltd. All rights reserved.
+//  Copyright (c) 2014 Charles Allen. All rights reserved.
 //
 //  Based on: http://stackoverflow.com/questions/3007153/drawing-pixels-objective-c-cocoa
 

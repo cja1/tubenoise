@@ -3,7 +3,7 @@
 //  tubenoise
 //
 //  Created by Charles Allen on 23/05/2014.
-//  Copyright (c) 2014 Agile Projects Ltd. All rights reserved.
+//  Copyright (c) 2014 Charles Allen. All rights reserved.
 
 //  Based on code by Vladimir Boychentsov on 5/21/11, Copyright 2011 www.injoit.com. All rights reserved.
 
@@ -17,7 +17,6 @@
 @property (strong, nonatomic) AVAssetWriter *videoWriter;
 @property (strong, nonatomic) AVAssetWriterInput* writerInput;
 @property (strong, nonatomic) AVAssetWriterInputPixelBufferAdaptor *adaptor;
-
 @end
 
 @implementation APEncodeMovie
@@ -32,7 +31,7 @@
         if ([[NSFileManager defaultManager] fileExistsAtPath:[url path]]) {
             [[NSFileManager defaultManager] removeItemAtPath:[url path] error:nil];
         }
-
+        
         //Video writer
         _videoWriter = [[AVAssetWriter alloc] initWithURL: url fileType:AVFileTypeMPEG4 error:&error];
         NSParameterAssert(_videoWriter);
@@ -68,6 +67,7 @@
 - (BOOL)addImage:(UIImage *)image frameNum:(NSInteger)frameNum fps:(NSInteger)fps {
     
     CVPixelBufferRef pixelBuffer;
+    
     [self createPixelBufferFromCGImage:[image CGImage] withPixelBufferPtr:&pixelBuffer];
     
     CMTime presentTime = CMTimeMake(frameNum, (int32_t)fps);

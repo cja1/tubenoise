@@ -3,7 +3,7 @@
 //  tubenoise
 //
 //  Created by Charles Allen on 23/05/2014.
-//  Copyright (c) 2014 Agile Projects Ltd. All rights reserved.
+//  Copyright (c) 2014 Charles Allen. All rights reserved.
 
 //  Based on code by Vladimir Boychentsov on 5/21/11, Copyright 2011 www.injoit.com. All rights reserved.
 

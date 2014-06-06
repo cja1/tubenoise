@@ -3,7 +3,7 @@
 //  tubenoise
 //
 //  Created by Charles Allen on 29/05/2014.
-//  Copyright (c) 2014 Agile Projects Ltd. All rights reserved.
+//  Copyright (c) 2014 Charles Allen. All rights reserved.
 //
 
 #import "APPDFRenderer.h"
@@ -55,8 +55,8 @@
     CGFloat xInset = 10.0f;
     CGFloat yTopInset = 40.0f;
     CGFloat yBottomInset = 10.0f;
-    [self drawChart:accelerometerVals time:accelerometerTime rect:CGRectMake(20.0f + xInset, 103.0f + yTopInset, 555.0f - 2 * xInset, 350.0f - yTopInset - yBottomInset) color:[UIColor redColor]];
-    [self drawChart:soundVals time:soundTime rect:CGRectMake(20.0f + xInset, 472.0f + yTopInset, 555.0f - 2 * xInset, 350.0f - yTopInset - yBottomInset) color:[UIColor blueColor]];
+    [self drawChart:soundVals time:soundTime rect:CGRectMake(20.0f + xInset, 103.0f + yTopInset, 555.0f - 2 * xInset, 350.0f - yTopInset - yBottomInset) color:[UIColor blueColor]];
+    [self drawChart:accelerometerVals time:accelerometerTime rect:CGRectMake(20.0f + xInset, 472.0f + yTopInset, 555.0f - 2 * xInset, 350.0f - yTopInset - yBottomInset) color:[UIColor redColor]];
     
     UIGraphicsEndPDFContext();
 }

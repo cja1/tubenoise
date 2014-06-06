@@ -20,11 +20,6 @@
 		F1B2E7F5192F6E8100C8B5D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B2E7F4192F6E8100C8B5D6 /* main.m */; };
 		F1B2E7F9192F6E8100C8B5D6 /* APAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B2E7F8192F6E8100C8B5D6 /* APAppDelegate.m */; };
 		F1B2E7FB192F6E8100C8B5D6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1B2E7FA192F6E8100C8B5D6 /* Images.xcassets */; };
-		F1B2E802192F6E8200C8B5D6 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E801192F6E8200C8B5D6 /* XCTest.framework */; };
-		F1B2E803192F6E8200C8B5D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7E8192F6E8100C8B5D6 /* Foundation.framework */; };
-		F1B2E804192F6E8200C8B5D6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E7EC192F6E8100C8B5D6 /* UIKit.framework */; };
-		F1B2E80C192F6E8200C8B5D6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F1B2E80A192F6E8200C8B5D6 /* InfoPlist.strings */; };
-		F1B2E80E192F6E8200C8B5D6 /* tubenoiseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B2E80D192F6E8200C8B5D6 /* tubenoiseTests.m */; };
 		F1B2E818192F708000C8B5D6 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E817192F708000C8B5D6 /* MessageUI.framework */; };
 		F1B2E81A192F708800C8B5D6 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B2E819192F708800C8B5D6 /* CoreMotion.framework */; };
 		F1B2E81E192F70BE00C8B5D6 /* APHomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B2E81C192F70BE00C8B5D6 /* APHomeViewController.m */; };
@@ -35,16 +30,6 @@
 		F1BEEF5B1934C3BD00A0B080 /* APPlotUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F1BEEF5A1934C3BD00A0B080 /* APPlotUtils.m */; };
 		F1E08947193520E30077BFAF /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1E08946193520E30077BFAF /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		F1B2E805192F6E8200C8B5D6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F1B2E7DD192F6E8100C8B5D6 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F1B2E7E4192F6E8100C8B5D6;
-			remoteInfo = tubenoise;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		F10855381937811D00E7C82E /* APPDFRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APPDFRenderer.h; sourceTree = "<group>"; };
@@ -68,11 +53,7 @@
 		F1B2E7F7192F6E8100C8B5D6 /* APAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APAppDelegate.h; sourceTree = "<group>"; };
 		F1B2E7F8192F6E8100C8B5D6 /* APAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = APAppDelegate.m; sourceTree = "<group>"; };
 		F1B2E7FA192F6E8100C8B5D6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		F1B2E800192F6E8200C8B5D6 /* tubenoiseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = tubenoiseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1B2E801192F6E8200C8B5D6 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		F1B2E809192F6E8200C8B5D6 /* tubenoiseTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "tubenoiseTests-Info.plist"; sourceTree = "<group>"; };
-		F1B2E80B192F6E8200C8B5D6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F1B2E80D192F6E8200C8B5D6 /* tubenoiseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = tubenoiseTests.m; sourceTree = "<group>"; };
 		F1B2E817192F708000C8B5D6 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		F1B2E819192F708800C8B5D6 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		F1B2E81B192F70BE00C8B5D6 /* APHomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APHomeViewController.h; sourceTree = "<group>"; };
@@ -103,16 +84,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F1B2E7FD192F6E8200C8B5D6 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F1B2E802192F6E8200C8B5D6 /* XCTest.framework in Frameworks */,
-				F1B2E804192F6E8200C8B5D6 /* UIKit.framework in Frameworks */,
-				F1B2E803192F6E8200C8B5D6 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -120,7 +91,6 @@
 			isa = PBXGroup;
 			children = (
 				F1B2E7EE192F6E8100C8B5D6 /* tubenoise */,
-				F1B2E807192F6E8200C8B5D6 /* tubenoiseTests */,
 				F1B2E7E7192F6E8100C8B5D6 /* Frameworks */,
 				F1B2E7E6192F6E8100C8B5D6 /* Products */,
 			);
@@ -130,7 +100,6 @@
 			isa = PBXGroup;
 			children = (
 				F1B2E7E5192F6E8100C8B5D6 /* tubenoise.app */,
-				F1B2E800192F6E8200C8B5D6 /* tubenoiseTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -192,24 +161,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		F1B2E807192F6E8200C8B5D6 /* tubenoiseTests */ = {
-			isa = PBXGroup;
-			children = (
-				F1B2E80D192F6E8200C8B5D6 /* tubenoiseTests.m */,
-				F1B2E808192F6E8200C8B5D6 /* Supporting Files */,
-			);
-			path = tubenoiseTests;
-			sourceTree = "<group>";
-		};
-		F1B2E808192F6E8200C8B5D6 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				F1B2E809192F6E8200C8B5D6 /* tubenoiseTests-Info.plist */,
-				F1B2E80A192F6E8200C8B5D6 /* InfoPlist.strings */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -230,24 +181,6 @@
 			productReference = F1B2E7E5192F6E8100C8B5D6 /* tubenoise.app */;
 			productType = "com.apple.product-type.application";
 		};
-		F1B2E7FF192F6E8200C8B5D6 /* tubenoiseTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F1B2E814192F6E8200C8B5D6 /* Build configuration list for PBXNativeTarget "tubenoiseTests" */;
-			buildPhases = (
-				F1B2E7FC192F6E8200C8B5D6 /* Sources */,
-				F1B2E7FD192F6E8200C8B5D6 /* Frameworks */,
-				F1B2E7FE192F6E8200C8B5D6 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F1B2E806192F6E8200C8B5D6 /* PBXTargetDependency */,
-			);
-			name = tubenoiseTests;
-			productName = tubenoiseTests;
-			productReference = F1B2E800192F6E8200C8B5D6 /* tubenoiseTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -257,11 +190,6 @@
 				CLASSPREFIX = AP;
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Agile Projects Ltd";
-				TargetAttributes = {
-					F1B2E7FF192F6E8200C8B5D6 = {
-						TestTargetID = F1B2E7E4192F6E8100C8B5D6;
-					};
-				};
 			};
 			buildConfigurationList = F1B2E7E0192F6E8100C8B5D6 /* Build configuration list for PBXProject "tubenoise" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -276,7 +204,6 @@
 			projectRoot = "";
 			targets = (
 				F1B2E7E4192F6E8100C8B5D6 /* tubenoise */,
-				F1B2E7FF192F6E8200C8B5D6 /* tubenoiseTests */,
 			);
 		};
 /* End PBXProject section */
@@ -291,14 +218,6 @@
 				F18F5D6A193C6B4900405E77 /* Settings.bundle in Resources */,
 				F1B2E7FB192F6E8100C8B5D6 /* Images.xcassets in Resources */,
 				F108553C193784D600E7C82E /* PDFTemplate.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F1B2E7FE192F6E8200C8B5D6 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F1B2E80C192F6E8200C8B5D6 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,37 +242,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F1B2E7FC192F6E8200C8B5D6 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F1B2E80E192F6E8200C8B5D6 /* tubenoiseTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		F1B2E806192F6E8200C8B5D6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F1B2E7E4192F6E8100C8B5D6 /* tubenoise */;
-			targetProxy = F1B2E805192F6E8200C8B5D6 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		F1B2E7F1192F6E8100C8B5D6 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				F1B2E7F2192F6E8100C8B5D6 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		F1B2E80A192F6E8200C8B5D6 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				F1B2E80B192F6E8200C8B5D6 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -457,46 +352,6 @@
 			};
 			name = Release;
 		};
-		F1B2E815192F6E8200C8B5D6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/tubenoise.app/tubenoise";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "tubenoise/tubenoise-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "tubenoiseTests/tubenoiseTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Debug;
-		};
-		F1B2E816192F6E8200C8B5D6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/tubenoise.app/tubenoise";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "tubenoise/tubenoise-Prefix.pch";
-				INFOPLIST_FILE = "tubenoiseTests/tubenoiseTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -514,15 +369,6 @@
 			buildConfigurations = (
 				F1B2E812192F6E8200C8B5D6 /* Debug */,
 				F1B2E813192F6E8200C8B5D6 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		F1B2E814192F6E8200C8B5D6 /* Build configuration list for PBXNativeTarget "tubenoiseTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F1B2E815192F6E8200C8B5D6 /* Debug */,
-				F1B2E816192F6E8200C8B5D6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
