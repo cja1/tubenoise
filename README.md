@@ -11,10 +11,10 @@ Vibrations are measured using the iPhone accelerometer. The z-axis is used for m
 
 ## Features
 
-![During recording](images/img1.png)
-![After recording](images/img2.png)
-![Processing](images/img3.png)
-![Sending data by email](images/img4.png)
+![During recording](images/image1.png)
+![After recording](images/image2.png)
+![Processing](images/image3.png)
+![Sending data by email](images/image4.png)
 
 
 ## Output formats
@@ -31,7 +31,7 @@ Vibrations are measured using the iPhone accelerometer. The z-axis is used for m
 
 
 ## Usage
-* Install the code on your iPhone. Note that the simulator won't work as there is no accelerometer.
+* Install the code on your iPhone. Note that the simulator won't work as it doesn't have an accelerometer.
 * Run the code. Adjust the display sensitivity if required. This doesn't change the recording sensitivity.
 * Tap 'Start' to start recording and 'Stop' when you're done.
 * Slide the green bars if you want to trim the recording start / end time. (Limitation: start time must be between zero and half way through the recording. End time must be between half way through and the end of the movie)
