@@ -11,7 +11,7 @@ Vibrations are measured using the iPhone accelerometer. The z-axis is used for m
 
 ## Basic Functions
 
-![Before recording](images/img1.png)
+![Before recording](cja1.github.com/tubenoise/images/img1.png)
 ![Before recording](images/img2.png)
 ![Before recording](images/img3.png)
 ![Before recording](images/img4.png)
