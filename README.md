@@ -9,6 +9,12 @@ Sounds are measured using the iPhone microphone and both the sound amplitude and
 
 Vibrations are measured using the iPhone accelerometer. The z-axis is used for measuring acceleration - so the iPhone should be placed on its back to measure vibration of a surface.
 
+## Basic Functions
+
+![Before recording](images/img1.png)
+![Before recording](images/img2.png)
+![Before recording](images/img3.png)
+![Before recording](images/img4.png)
 
 # License
 
