@@ -6,14 +6,14 @@ This code creates a basic sound and vibration recorder for iPhones. It was creat
 
 Sounds are measured using the iPhone microphone and both the sound level (in dB) and the actual sound are recorded.
 
-Vibrations are measured using the iPhone accelerometer. The z-axis is used for measuring acceleration - so the iPhone should be placed on its back to measure vibration of a surface.
+Vibrations are measured using the iPhone accelerometer. The z-axis is used for measuring acceleration - so the iPhone should be placed flat the surface to be measured.
 
 
 ## Screenshots
-![During recording](images/image1.png)
-![After recording](images/image2.png)
-![Processing](images/image3.png)
-![Sending data by email](images/image4.png)
+![During recording](images/img1.png)
+![After recording](images/img2.png)
+![Processing](images/img3.png)
+![Sending data by email](images/img4.png)
 
 
 ## Output formats
@@ -30,10 +30,10 @@ Vibrations are measured using the iPhone accelerometer. The z-axis is used for m
 
 
 ## Usage
-* Install the code on your iPhone. Note that the simulator won't work as it doesn't have an accelerometer.
-* Run the code. Adjust the display sensitivity if required. This doesn't change the recording sensitivity.
+* Install the code on your iPhone. Note that the simulator doesn't have an accelerometer.
+* Run the code. Adjust the display sensitivity if required.
 * Tap 'Start' to start recording and 'Stop' when you're done.
-* Slide the green bars if you want to trim the recording start / end time. (Limitation: start time must be between zero and half way through the recording. End time must be between half way through and the end of the movie)
+* Slide the green bars to trim the recording start / end time. (Limitation: start time must be between zero and half way through the recording. End time must be between half way through and the end of the movie)
 * Tap 'Process' to create the video of the sound / acceleration, then tap 'Email' to send the files.
 
 

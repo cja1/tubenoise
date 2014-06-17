@@ -206,11 +206,11 @@
     
     double yStart = min - (fmod(min, stepSize));
     //adjust for neagtive
-    if (yStart < 0)
+    if (yStart <= 0)
         yStart -= stepSize;
     double yEnd = max - (fmod(max, stepSize));
     //adjust for positive
-    if (yEnd > 0)
+    if (yEnd >= 0)
         yEnd += stepSize;
     
     return @{@"yStart": [NSNumber numberWithDouble:yStart], @"yEnd": [NSNumber numberWithDouble:yEnd], @"stepSize": [NSNumber numberWithDouble:stepSize]};
